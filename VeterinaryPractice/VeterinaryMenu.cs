@@ -245,30 +245,37 @@ namespace VeterinaryPractice
                                 pets = p,
                                 medication = m
                             };
-
-                Console.WriteLine("DETAILS OF SERVICE");
-                Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
-                Console.WriteLine(query.FirstOrDefault().pets.Name + " Last visited on " + query.FirstOrDefault().visits.VisitDate);
-                decimal totalMedicationCost = 0;
-                foreach(var item in query)
+                if (query.Any())
                 {
-                    decimal medicationPrice = decimal.Parse(item.medication.MedicationPrice);
-                    int medicationQty = Int32.Parse(item.medication.MedicationQty);
-                    decimal medicationCost = medicationPrice * medicationQty;
-                    totalMedicationCost += medicationCost;
-                    Console.WriteLine("Medication Issued: " + item.medication.MedicationName);
-                    Console.WriteLine("Medication Price: £" + medicationPrice);
-                    Console.WriteLine("Medication Qty: " + item.medication.MedicationQty);
-                    Console.WriteLine("---------------------------------");
+                    Console.WriteLine("DETAILS OF SERVICE");
+                    Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
+                    Console.WriteLine(query.FirstOrDefault().pets.Name + " Last visited on " + query.FirstOrDefault().visits.VisitDate);
+                    decimal totalMedicationCost = 0;
+                    foreach (var item in query)
+                    {
+                        decimal medicationPrice = decimal.Parse(item.medication.MedicationPrice);
+                        int medicationQty = Int32.Parse(item.medication.MedicationQty);
+                        decimal medicationCost = medicationPrice * medicationQty;
+                        totalMedicationCost += medicationCost;
+                        Console.WriteLine("Medication Issued: " + item.medication.MedicationName);
+                        Console.WriteLine("Medication Price: £" + medicationPrice);
+                        Console.WriteLine("Medication Qty: " + item.medication.MedicationQty);
+                        Console.WriteLine("---------------------------------");
 
+                    }
+                    decimal labourCost = decimal.Parse(query.FirstOrDefault().visits.DurationHours) * labourRate;
+                    decimal totalCost = totalMedicationCost + labourCost;
+                    Console.WriteLine("Total Medication Cost: £" + totalMedicationCost);
+                    Console.WriteLine("Labour Time: " + query.FirstOrDefault().visits.DurationHours + "hrs");
+                    Console.WriteLine("Labour Cost: £" + labourCost);
+                    Console.WriteLine("Total Cost: £" + totalCost);
+                    Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
                 }
-                decimal labourCost = decimal.Parse(query.FirstOrDefault().visits.DurationHours) * labourRate;
-                decimal totalCost = totalMedicationCost + labourCost;
-                Console.WriteLine("Total Medication Cost: £" + totalMedicationCost);
-                Console.WriteLine("Labour Time: " + query.FirstOrDefault().visits.DurationHours + "hrs");
-                Console.WriteLine("Labour Cost: £" + labourCost);
-                Console.WriteLine("Total Cost: £" + totalCost);
-                Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
+                else
+                {
+                    Console.WriteLine("NO VISITS IN RECORDS");
+                }
+                
             }
             else
             {
