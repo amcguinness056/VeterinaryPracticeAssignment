@@ -54,7 +54,12 @@ namespace VeterinaryPractice
                         case 5:
                             veterinaryMenu.GivenVetIdListPetsAndOwnners(db);
                             break;
-
+                        case 6:
+                            veterinaryMenu.GivenPetIdCalculateInvoice(db);
+                            break;
+                        case 7:
+                            Console.WriteLine("LOGGING OUT");
+                            break;
                         default:
                             Console.WriteLine("Invalid selection");
                             break;
@@ -221,6 +226,56 @@ namespace VeterinaryPractice
             }
         }
 
+        public void GivenPetIdCalculateInvoice(VeterinaryModelContainer db)
+        {
+            int petId = Int32.Parse(getPetId());
+            bool petIdExists = db.Pets.Any(r => r.Id.Equals(petId));
+
+            if (petIdExists)
+            {
+                decimal labourRate = 40;
+                var query = from vi in db.Visits
+                            join p in db.Pets on vi.PetId equals p.Id
+                            join m in db.Medications on vi.Id equals m.VisitId
+                            where vi.PetId.Equals(petId)
+                            orderby vi.VisitDate
+                            select new
+                            {
+                                visits = vi,
+                                pets = p,
+                                medication = m
+                            };
+
+                Console.WriteLine("DETAILS OF SERVICE");
+                Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
+                Console.WriteLine(query.FirstOrDefault().pets.Name + " Last visited on " + query.FirstOrDefault().visits.VisitDate);
+                decimal totalMedicationCost = 0;
+                foreach(var item in query)
+                {
+                    decimal medicationPrice = decimal.Parse(item.medication.MedicationPrice);
+                    int medicationQty = Int32.Parse(item.medication.MedicationQty);
+                    decimal medicationCost = medicationPrice * medicationQty;
+                    totalMedicationCost += medicationCost;
+                    Console.WriteLine("Medication Issued: " + item.medication.MedicationName);
+                    Console.WriteLine("Medication Price: £" + medicationPrice);
+                    Console.WriteLine("Medication Qty: " + item.medication.MedicationQty);
+                    Console.WriteLine("---------------------------------");
+
+                }
+                decimal labourCost = decimal.Parse(query.FirstOrDefault().visits.DurationHours) * labourRate;
+                decimal totalCost = totalMedicationCost + labourCost;
+                Console.WriteLine("Total Medication Cost: £" + totalMedicationCost);
+                Console.WriteLine("Labour Time: " + query.FirstOrDefault().visits.DurationHours + "hrs");
+                Console.WriteLine("Labour Cost: £" + labourCost);
+                Console.WriteLine("Total Cost: £" + totalCost);
+                Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
+            }
+            else
+            {
+                Console.WriteLine("PETID DOES NOT EXIST");
+            }
+        }
+
 
 
         //--------------------UTILITY METHODS-------------------
@@ -258,7 +313,7 @@ namespace VeterinaryPractice
 
         string getDate()
         {
-            return getInput("Enter DATE in format DD/MM/YYYY, DD.MM.YYYY or dd-mm-yyyy: ", @"^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$");
+            return getInput("Enter DATE in format dd/mm/yyyy, dd.mm.yyyy or dd-mm-yyyy: ", @"^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$");
         }
 
     }
