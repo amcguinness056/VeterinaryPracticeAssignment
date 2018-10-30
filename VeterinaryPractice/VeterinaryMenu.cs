@@ -51,6 +51,9 @@ namespace VeterinaryPractice
                         case 4:
                             veterinaryMenu.ListPetAndVisitGivenPetId(db);
                             break;
+                        case 5:
+                            veterinaryMenu.GivenVetIdListPetsAndOwnners(db);
+                            break;
 
                         default:
                             Console.WriteLine("Invalid selection");
@@ -164,6 +167,60 @@ namespace VeterinaryPractice
             }
         }
 
+        public void GivenVetIdListPetsAndOwnners(VeterinaryModelContainer db)
+        {
+            int vetId = Int32.Parse(getVetId());
+            bool vetIdExists = db.Vets.Any(r => r.Id.Equals(vetId));
+
+            if (vetIdExists)
+            {
+                string date = getDate();
+                DateTime dateTimeInputed = Convert.ToDateTime(date);
+                
+                var query = from v in db.Vets
+                            join vi in db.Visits on v.Id equals vi.VetId
+                            join p in db.Pets on vi.PetId equals p.Id
+                            join o in db.Owners on p.OwnerId equals o.Id
+                            where v.Id.Equals(vetId)
+                            orderby vi.VisitDate
+                            select new
+                            {
+                                vets = v,
+                                visits = vi,
+                                pets = p,
+                                owners = o
+                            };
+
+                Console.WriteLine("Appointments for Vet " + query.FirstOrDefault().vets.Firstname + " " + query.FirstOrDefault().vets.Surname + " on date " + date);
+                bool noAppointments = false;
+
+                foreach(var item in query)
+                {
+                    DateTime dateTime = Convert.ToDateTime(item.visits.VisitDate);
+                    if(dateTimeInputed.Equals(dateTime))
+                    {
+                        Console.WriteLine("DETAILS OF VISIT" + "\n---------------");
+                        Console.WriteLine("Name of Pet: " + item.pets.Name);
+                        Console.WriteLine("Name of Owner: " + item.owners.Firstname + " " + item.owners.Surname);
+                    }
+                    else
+                    {
+                        noAppointments = true;
+                    }
+                    
+                }
+                if (noAppointments)
+                    Console.WriteLine("NO APPOINTMENTS ON THIS DATE");
+                Console.WriteLine("---------------------------------------");
+
+            }
+            else
+            {
+                Console.WriteLine("THAT VETID DOES NOT EXIST IN THE RECORDS");
+                Console.WriteLine("---------------------------------------");
+            }
+        }
+
 
 
         //--------------------UTILITY METHODS-------------------
@@ -191,6 +248,17 @@ namespace VeterinaryPractice
         string getPetId()
         {
             return getInput("Enter PETID: ", @"^[0-9]+$");
+        }
+
+
+        string getVetId()
+        {
+            return getInput("Enter VETID: ", @"^[0-9]+$");
+        }
+
+        string getDate()
+        {
+            return getInput("Enter DATE in format DD/MM/YYYY, DD.MM.YYYY or dd-mm-yyyy: ", @"^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$");
         }
 
     }
