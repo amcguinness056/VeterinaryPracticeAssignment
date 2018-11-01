@@ -59,6 +59,7 @@ namespace VeterinaryPractice
                             break;
                         case 7:
                             Console.WriteLine("LOGGING OUT");
+                            Environment.Exit(0);
                             break;
                         default:
                             Console.WriteLine("Invalid selection");
@@ -79,12 +80,15 @@ namespace VeterinaryPractice
                         select o;
 
             Console.WriteLine("VETERINARY PET OWNERS LISTING");
-            foreach(var item in query)
+            Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+            foreach (var item in query)
             {
                 Console.WriteLine(item.Surname + " " + item.Firstname);
+                Console.WriteLine("Address: " + item.Address + "\nPhone Number: " + item.PhoneNumber);
+                Console.WriteLine("---------------------------------------");
             }
-            Console.WriteLine("---------------------------------------");
-            
+            Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+
         }
 
         //List all pets registered to the practice
@@ -94,12 +98,15 @@ namespace VeterinaryPractice
                         orderby p.Name
                         select p;
             Console.WriteLine("VETERINARY PETS LISTING");
-            foreach(var item in query)
+            Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+            foreach (var item in query)
             {
                 Console.WriteLine("Name: " + item.Name + "\nType: " + item.Type + "\nBreed: " + item.Breed + "\n");
+                Console.WriteLine("---------------------------------------");
+
             }
 
-            Console.WriteLine("---------------------------------------");
+            Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
         }
 
         //Given Practice RegNum list details of practice including vets who work there
@@ -120,20 +127,22 @@ namespace VeterinaryPractice
                                            };
 
               
-                    Console.WriteLine("DETAILS OF PRACTICE WITH REGNUM " + regNumber);
-                    Console.WriteLine(queryPracticeDetails.FirstOrDefault().practice.PracticeName + " - " + queryPracticeDetails.FirstOrDefault().practice.Address + "\nVETS WORKING AT THIS PRACTICE:");
+                Console.WriteLine("DETAILS OF PRACTICE WITH REGNUM " + regNumber);
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+                Console.WriteLine(queryPracticeDetails.FirstOrDefault().practice.PracticeName + " - " + queryPracticeDetails.FirstOrDefault().practice.Address + "\nVETS WORKING AT THIS PRACTICE:");
                     foreach (var item in queryPracticeDetails)
                     {
                        
                         Console.WriteLine(item.vetDetails.Firstname + " " + item.vetDetails.Surname);
+                        
                     }
-                    Console.WriteLine("---------------------------------------");
-                
+
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
             }
             else
             {
                 Console.WriteLine("THAT REGNUM DOES NOT EXIST IN THE RECORDS");
-                Console.WriteLine("---------------------------------------");
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
             }
         }
 
@@ -247,9 +256,10 @@ namespace VeterinaryPractice
                             };
                 if (query.Any())
                 {
-                    Console.WriteLine("DETAILS OF SERVICE");
+                    Console.WriteLine("DETAILS OF VISIT");
                     Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
                     Console.WriteLine(query.FirstOrDefault().pets.Name + " Last visited on " + query.FirstOrDefault().visits.VisitDate);
+                    Console.WriteLine("---------------------------------");
                     decimal totalMedicationCost = 0;
                     foreach (var item in query)
                     {
