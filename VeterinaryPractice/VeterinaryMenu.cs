@@ -59,6 +59,7 @@ namespace VeterinaryPractice
                             break;
                         case 7:
                             Console.WriteLine("LOGGING OUT");
+                            Environment.Exit(0);
                             break;
                         default:
                             Console.WriteLine("Invalid selection");
@@ -78,13 +79,23 @@ namespace VeterinaryPractice
                         orderby o.Surname
                         select o;
 
-            Console.WriteLine("VETERINARY PET OWNERS LISTING");
-            foreach(var item in query)
+            if (query.Any())
             {
-                Console.WriteLine(item.Surname + " " + item.Firstname);
+                Console.WriteLine("VETERINARY PET OWNERS LISTING");
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+                foreach (var item in query)
+                {
+                    Console.WriteLine(item.Surname + " " + item.Firstname);
+                    Console.WriteLine("Address: " + item.Address + "\nPhone Number: " + item.PhoneNumber);
+                    Console.WriteLine("---------------------------------------");
+                }
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+
             }
-            Console.WriteLine("---------------------------------------");
-            
+            else
+            {
+                Console.WriteLine("ERROR WITH QUERY");
+            }
         }
 
         //List all pets registered to the practice
@@ -93,13 +104,24 @@ namespace VeterinaryPractice
             var query = from p in db.Pets
                         orderby p.Name
                         select p;
-            Console.WriteLine("VETERINARY PETS LISTING");
-            foreach(var item in query)
+            if (query.Any())
             {
-                Console.WriteLine("Name: " + item.Name + "\nType: " + item.Type + "\nBreed: " + item.Breed + "\n");
+                Console.WriteLine("VETERINARY PETS LISTING");
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+                foreach (var item in query)
+                {
+                    Console.WriteLine("Name: " + item.Name + "\nType: " + item.Type + "\nBreed: " + item.Breed + "\n");
+                    Console.WriteLine("---------------------------------------");
+
+                }
+
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+            }
+            else
+            {
+                Console.WriteLine("ERROR WITH QUERY");
             }
 
-            Console.WriteLine("---------------------------------------");
         }
 
         //Given Practice RegNum list details of practice including vets who work there
@@ -118,22 +140,30 @@ namespace VeterinaryPractice
                                                practice = p,
                                                vetDetails = v
                                            };
-
-              
+                if (queryPracticeDetails.Any())
+                {
                     Console.WriteLine("DETAILS OF PRACTICE WITH REGNUM " + regNumber);
+                    Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
                     Console.WriteLine(queryPracticeDetails.FirstOrDefault().practice.PracticeName + " - " + queryPracticeDetails.FirstOrDefault().practice.Address + "\nVETS WORKING AT THIS PRACTICE:");
                     foreach (var item in queryPracticeDetails)
                     {
-                       
+
                         Console.WriteLine(item.vetDetails.Firstname + " " + item.vetDetails.Surname);
+
                     }
-                    Console.WriteLine("---------------------------------------");
+
+                    Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
+                }
+                else
+                {
+                    Console.WriteLine("ERROR WITH QUERY");
+                }
                 
             }
             else
             {
                 Console.WriteLine("THAT REGNUM DOES NOT EXIST IN THE RECORDS");
-                Console.WriteLine("---------------------------------------");
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
             }
         }
 
@@ -147,23 +177,31 @@ namespace VeterinaryPractice
                 var query = from p in db.Pets
                             join v in db.Visits on p.Id equals v.PetId
                             where p.Id.Equals(petId)
-                            orderby v.VisitDate
+                            orderby v.VisitDate descending
                             select new
                             {
                                 pets = p,
                                 visits = v
                             };
-                Console.WriteLine("DETAILS OF PET WITH PETID " + petId);
-                Console.WriteLine("Name: " + query.FirstOrDefault().pets.Name +
-                                  "\nType: " + query.FirstOrDefault().pets.Type +
-                                  "\nBreed: " + query.FirstOrDefault().pets.Breed);
-                foreach(var item in query)
+                if (query.Any())
                 {
-                    Console.WriteLine("DETIALS OF VISIT" + "\n---------------");
-                    Console.WriteLine("Visit Date: " + item.visits.VisitDate +
-                                      "\nVisit Reason: " + item.visits.VisitReason + "\n");
+                    Console.WriteLine("DETAILS OF PET WITH PETID " + petId);
+                    Console.WriteLine("Name: " + query.FirstOrDefault().pets.Name +
+                                      "\nType: " + query.FirstOrDefault().pets.Type +
+                                      "\nBreed: " + query.FirstOrDefault().pets.Breed);
+                    foreach (var item in query)
+                    {
+                        Console.WriteLine("DETIALS OF VISIT" + "\n---------------");
+                        Console.WriteLine("Visit Date: " + item.visits.VisitDate +
+                                          "\nVisit Reason: " + item.visits.VisitReason + "\n");
+                    }
+                    Console.WriteLine("---------------------------------------");
                 }
-                Console.WriteLine("---------------------------------------");
+                else
+                {
+                    Console.WriteLine("ERROR WITH QUERY");
+                }
+
             }
             else
             {
@@ -179,15 +217,12 @@ namespace VeterinaryPractice
 
             if (vetIdExists)
             {
-                string date = getDate();
-                DateTime dateTimeInputed = Convert.ToDateTime(date);
-                
                 var query = from v in db.Vets
                             join vi in db.Visits on v.Id equals vi.VetId
                             join p in db.Pets on vi.PetId equals p.Id
                             join o in db.Owners on p.OwnerId equals o.Id
                             where v.Id.Equals(vetId)
-                            orderby vi.VisitDate
+                            orderby vi.VisitDate descending
                             select new
                             {
                                 vets = v,
@@ -196,27 +231,39 @@ namespace VeterinaryPractice
                                 owners = o
                             };
 
-                Console.WriteLine("Appointments for Vet " + query.FirstOrDefault().vets.Firstname + " " + query.FirstOrDefault().vets.Surname + " on date " + date);
-                bool noAppointments = false;
-
-                foreach(var item in query)
+                if (query.Any())
                 {
-                    DateTime dateTime = Convert.ToDateTime(item.visits.VisitDate);
-                    if(dateTimeInputed.Equals(dateTime))
+                    string date = getDate();
+                    DateTime dateTimeInputed = Convert.ToDateTime(date);
+                    Console.WriteLine("Appointments for Vet " + query.FirstOrDefault().vets.Firstname + " " + query.FirstOrDefault().vets.Surname + " on date " + date);
+                    bool noAppointments = false;
+
+                    foreach (var item in query)
                     {
-                        Console.WriteLine("DETAILS OF VISIT" + "\n---------------");
-                        Console.WriteLine("Name of Pet: " + item.pets.Name);
-                        Console.WriteLine("Name of Owner: " + item.owners.Firstname + " " + item.owners.Surname);
+                        DateTime dateTime = Convert.ToDateTime(item.visits.VisitDate);
+                        if (dateTimeInputed.Equals(dateTime))
+                        {
+                            Console.WriteLine("DETAILS OF VISIT" + "\n---------------");
+                            Console.WriteLine("Name of Pet: " + item.pets.Name);
+                            Console.WriteLine("Name of Owner: " + item.owners.Firstname + " " + item.owners.Surname);
+                        }
+                        else
+                        {
+                            noAppointments = true;
+                        }
+
                     }
-                    else
-                    {
-                        noAppointments = true;
-                    }
-                    
+                    if (noAppointments)
+                        Console.WriteLine("NO APPOINTMENTS ON THIS DATE");
+                    Console.WriteLine("---------------------------------------");
+
                 }
-                if (noAppointments)
-                    Console.WriteLine("NO APPOINTMENTS ON THIS DATE");
-                Console.WriteLine("---------------------------------------");
+               
+                else
+                {
+                    Console.WriteLine("THIS VET DOES NOT HAVE ANY APPOINTMENTS YET");
+                }
+
 
             }
             else
@@ -238,37 +285,48 @@ namespace VeterinaryPractice
                             join p in db.Pets on vi.PetId equals p.Id
                             join m in db.Medications on vi.Id equals m.VisitId
                             where vi.PetId.Equals(petId)
-                            orderby vi.VisitDate
+                            orderby vi.VisitDate descending
                             select new
                             {
                                 visits = vi,
                                 pets = p,
                                 medication = m
                             };
-
-                Console.WriteLine("DETAILS OF SERVICE");
-                Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
-                Console.WriteLine(query.FirstOrDefault().pets.Name + " Last visited on " + query.FirstOrDefault().visits.VisitDate);
-                decimal totalMedicationCost = 0;
-                foreach(var item in query)
+                if (query.Any())
                 {
-                    decimal medicationPrice = decimal.Parse(item.medication.MedicationPrice);
-                    int medicationQty = Int32.Parse(item.medication.MedicationQty);
-                    decimal medicationCost = medicationPrice * medicationQty;
-                    totalMedicationCost += medicationCost;
-                    Console.WriteLine("Medication Issued: " + item.medication.MedicationName);
-                    Console.WriteLine("Medication Price: £" + medicationPrice);
-                    Console.WriteLine("Medication Qty: " + item.medication.MedicationQty);
+                    Console.WriteLine("DETAILS OF VISIT");
+                    Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
+                    Console.WriteLine(query.FirstOrDefault().pets.Name + " Last visited on " + query.FirstOrDefault().visits.VisitDate);
                     Console.WriteLine("---------------------------------");
+                    decimal totalMedicationCost = 0;
+                    foreach (var item in query)
+                    {
+                       if (query.FirstOrDefault().visits.Id.Equals(item.medication.VisitId))
+                        {
+                            decimal medicationPrice = decimal.Parse(item.medication.MedicationPrice);
+                            int medicationQty = Int32.Parse(item.medication.MedicationQty);
+                            decimal medicationCost = medicationPrice * medicationQty;
+                            totalMedicationCost += medicationCost;
+                            Console.WriteLine("Medication Issued: " + item.medication.MedicationName);
+                            Console.WriteLine("Medication Price: £" + medicationPrice);
+                            Console.WriteLine("Medication Qty: " + item.medication.MedicationQty);
+                            Console.WriteLine("---------------------------------");
+                        }
+                        
 
+                    }
+                  
+                    Console.WriteLine("Total Medication Cost: £" + totalMedicationCost);
+                    Console.WriteLine("Labour Time: " + query.FirstOrDefault().visits.DurationHours + "hrs");
+                    Console.WriteLine("Labour Cost: £" + labourRate);
+                    Console.WriteLine("Total Cost: £" + (labourRate + totalMedicationCost));
+                    Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
                 }
-                decimal labourCost = decimal.Parse(query.FirstOrDefault().visits.DurationHours) * labourRate;
-                decimal totalCost = totalMedicationCost + labourCost;
-                Console.WriteLine("Total Medication Cost: £" + totalMedicationCost);
-                Console.WriteLine("Labour Time: " + query.FirstOrDefault().visits.DurationHours + "hrs");
-                Console.WriteLine("Labour Cost: £" + labourCost);
-                Console.WriteLine("Total Cost: £" + totalCost);
-                Console.WriteLine("++++++++++++++++++++++++++++++++++++++++++");
+                else
+                {
+                    Console.WriteLine("NO VISITS IN RECORDS");
+                }
+                
             }
             else
             {
